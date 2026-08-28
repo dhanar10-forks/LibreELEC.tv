@@ -1,0 +1,16 @@
+[Unit]
+Description=Setup zRAM Swap and Swappiness
+After=local-fs.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStartPre=/sbin/modprobe zram num_devices=1
+ExecStart=/bin/sh -c 'echo 100M > /sys/block/zram0/disksize'
+ExecStartPost=/sbin/mkswap /dev/zram0
+ExecStartPost=/sbin/swapon -p 100 /dev/zram0
+ExecStartPost=/sbin/sysctl -w vm.swappiness=100
+ExecStop=/sbin/swapoff /dev/zram0
+
+[Install]
+WantedBy=multi-user.target
